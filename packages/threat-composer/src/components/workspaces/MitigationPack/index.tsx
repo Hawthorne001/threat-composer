@@ -14,6 +14,8 @@
   limitations under the License.
  ******************************************************************************************************************** */
 import Button from '@cloudscape-design/components/button';
+import ContentLayout from '@cloudscape-design/components/content-layout';
+import Header from '@cloudscape-design/components/header';
 import SpaceBetween from '@cloudscape-design/components/space-between';
 import { useMemo, FC, useCallback, useState } from 'react';
 import GeneralInfo from './components/GeneralInfo';
@@ -35,28 +37,44 @@ const MitigationPack: FC<MitigationPackProp> = ({
     return mitigationPacks.find(x => x.id === mitigationPackId);
   }, []);
 
-  const [selectedItems, setSelectedItems] = useState<Mitigation[]>([]);
+  const [selectedItems, setSelectedItems] = useState<(Mitigation & {
+    comments?: string;
+  })[]>([]);
 
   const handleAddToWorkspace = useCallback(async () => {
-    await addMitigations(mitigationPackId, selectedItems);
+    await addMitigations(mitigationPackId, selectedItems.map(x => {
+      const { comments, ...data } = x;
+      return data;
+    }));
     setSelectedItems([]);
   }, [mitigationPackId, selectedItems]);
 
-  const colDef: ColumnDefinition<Mitigation>[] = useMemo(() => [
+  const items = useMemo(() => {
+    return mitigationPack?.mitigations?.map(x => {
+      const metadata = getMetadata(x.metadata);
+      return {
+        ...x,
+        comments: metadata.Comments || '',
+      };
+    }) || [];
+  }, [mitigationPack?.mitigations]);
+
+  const colDef: ColumnDefinition<{
+    content: string;
+    comments: string;
+  }>[] = useMemo(() => [
     {
       id: 'content',
       header: 'Mitigation',
       cell: (data) => data.content,
+      minWidth: 400,
       sortingField: 'content',
     },
     {
-      id: 'description',
-      header: 'Description',
-      cell: (data) => {
-        const metadata = getMetadata(data.metadata);
-        return metadata.Description || '';
-      },
-      sortingField: 'content',
+      id: 'comments',
+      header: 'Comments',
+      cell: (data) => data.comments,
+      sortingField: 'comments',
     },
   ], []);
 
@@ -92,18 +110,23 @@ const MitigationPack: FC<MitigationPackProp> = ({
     return null;
   }
 
-  return (<SpaceBetween direction='vertical' size='s'>
-    <GeneralInfo mitigationPack={mitigationPack} />
-    <Table
-      columnDefinitions={colDef}
-      actions={actions}
-      header="Mitigations"
-      items={mitigationPack.mitigations || []}
-      wrapLines={true}
-      isItemDisabled={isItemDisabled}
-      selectedItems={totalSelectedItems}
-      onSelectionChange={({ detail }) => setSelectedItems([...detail.selectedItems])}
-    /></SpaceBetween>);
+  return (<ContentLayout header={
+    <Header
+      variant="h2"
+    >
+      Mitigation Pack - {mitigationPack.name}
+    </Header>
+  }><SpaceBetween direction='vertical' size='s'>
+      <GeneralInfo mitigationPack={mitigationPack} />
+      <Table
+        columnDefinitions={colDef}
+        actions={actions}
+        header="Mitigations"
+        items={items}
+        isItemDisabled={isItemDisabled}
+        selectedItems={totalSelectedItems}
+        onSelectionChange={({ detail }) => setSelectedItems([...detail.selectedItems])}
+      /></SpaceBetween></ContentLayout>);
 };
 
 export default MitigationPack;

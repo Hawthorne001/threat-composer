@@ -36,7 +36,7 @@ import {
 import { useThreatsContext } from '../../../../../contexts/ThreatsContext';
 import filterThreatsByMetadata from '../../../../../utils/filterThreatsByMetadata';
 import DashboardNumber from '../../../../generic/DashboardNumber';
-import useLinkClicked from '../../hooks/useLinkClicked';
+import useThreatListLinkClicked from '../../hooks/useThreatListLinkClicked';
 import { WorkspaceInsightsProps } from '../../types';
 
 const ThreatPrioritization: FC<WorkspaceInsightsProps> = ({
@@ -45,7 +45,7 @@ const ThreatPrioritization: FC<WorkspaceInsightsProps> = ({
 }) => {
   const { statementList, addStatement } = useThreatsContext();
 
-  const handleLinkClicked = useLinkClicked(onThreatListView);
+  const handleLinkClicked = useThreatListLinkClicked(onThreatListView);
 
   const missingPriority = useMemo(
     () => filterThreatsByMetadata(statementList, 'Priority').length,
@@ -145,7 +145,7 @@ const ThreatPrioritization: FC<WorkspaceInsightsProps> = ({
           <Box variant="awsui-key-label">Missing priority</Box>
           <DashboardNumber
             showWarning
-            displayedNumber={missingPriority}
+            featuredNumber={missingPriority}
             onLinkClicked={handleLinkClicked({
               priority: LEVEL_NOT_SET,
             })}

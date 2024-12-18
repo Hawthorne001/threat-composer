@@ -16,6 +16,7 @@
 import genAIChatbot from './GenAIChatbot.tc.json';
 import threatComposer from './ThreatComposer.tc.json';
 import { WorkspaceExample } from '../../customTypes';
+// {IMPORT_PLACEHOLDER}
 
 const workspaceExamples = [
   {
@@ -26,6 +27,7 @@ const workspaceExamples = [
     name: 'GenAI Chatbot',
     value: genAIChatbot,
   },
+  // {ENTRY_PLACEHOLDER}
 ] as WorkspaceExample[];
 
 export default workspaceExamples;
